@@ -9,20 +9,14 @@
         - POSTGRES_PASSWORD=postgres
     web:
       build: .
-      command: bash -c "
+      command: bash -c "python manage.py waitfordb &&
+             python manage.py makemigrations core --noinput &&
+             python manage.py migrate --noinput &&
+             python manage.py init_project &&
              python manage.py runserver 0.0.0.0:8000"
       volumes:
         - .:/code
       ports:
-        - "8000:0.0.0.0:8000"
+        - "80:8000"
       depends_on:
         - db
-    nginx:
-      restart: always
-      build: ./nginx/
-      ports:
-        - "80:80"
-      volumes:
-        - web-static:/www/static
-      links:
-        - web:web
